@@ -35,6 +35,7 @@ app.all('*', async (req, res) => {
 app.use(errorHandler);
 
 const start = async () => {
+  console.log("Starting up ..... ")
   if (!process.env.JWT_KEY) {
     throw new Error('JWT_KEY must be defined');
   }
