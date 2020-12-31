@@ -43,7 +43,6 @@ const start = async () => {
       useCreateIndex: true,
     });
     console.log('Connected to MongoDb');
-    console.log("STRIPE_KEY", process.env.STRIPE_KEY);
   } catch (err) {
     console.error(err);
   }
