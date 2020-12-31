@@ -1,5 +1,8 @@
-// import request from 'supertest';
-// import { app } from '../../app';
+import request from 'supertest';
+import { app } from '../../app';
+it('run', () => {
+  
+})
 
 // it('fails when a email that does not exist is supplied', async () => {
 //   // await request(app)
