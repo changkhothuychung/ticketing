@@ -24,3 +24,28 @@ build:
             manual: 
                 - src: '**/*.js'
                   dest: .
+
+        - image: nhatnguyen1810/tickets 
+          context: tickets
+          docker: 
+            dockerfile: Dockerfile
+          sync: 
+            manual: 
+                - src: 'src/**/*.ts'
+                  dest: .
+        - image: nhatnguyen1810/orders 
+          context: orders
+          docker: 
+            dockerfile: Dockerfile
+          sync: 
+            manual: 
+                - src: 'src/**/*.ts'
+                  dest: .
+        - image: nhatnguyen1810/expiration 
+          context: expiration
+          docker: 
+            dockerfile: Dockerfile
+          sync: 
+            manual: 
+                - src: 'src/**/*.ts'
+                  dest: .

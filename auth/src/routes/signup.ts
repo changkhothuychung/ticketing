@@ -1,55 +1,51 @@
-import express, {Request, Response} from 'express';
-import {body, validationResult} from 'express-validator'; 
-import {RequestValidationError} from '../errors/request-validation';
-import {DatabaseConnectionError} from '../errors/database-connection-error';
-import {User} from '../models/user';
+import express, { Request, Response } from 'express';
+import { body } from 'express-validator';
 import jwt from 'jsonwebtoken';
+
+import { validateRequest } from '../middlewares/validate-request';
+import { User } from '../models/user';
+import { BadRequestError } from '../errors/bad-request-error';
+
 const router = express.Router();
 
-router.post('/api/users/signup',[
-    body('email')
-        .isEmail()
-        .withMessage('Email must be valid'),
+router.post(
+  '/api/users/signup',
+  [
+    body('email').isEmail().withMessage('Email must be valid'),
     body('password')
-        .trim()
-        .isLength({min: 4, max: 20})
-        .withMessage('email must be in [4,20] chars')
+      .trim()
+      .isLength({ min: 4, max: 20 })
+      .withMessage('Password must be between 4 and 20 characters'),
+  ],
+  validateRequest,
+  async (req: Request, res: Response) => {
+    const { email, password } = req.body;
 
-] ,async (req: Request,res: Response) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
+    const existingUser = await User.findOne({ email });
 
-        throw new RequestValidationError(errors.array()); 
+    if (existingUser) {
+      throw new BadRequestError('Email in use');
     }
 
-
-    const {email, password} = req.body; 
-    const existingUser = await User.findOne({email}); 
-    if(existingUser){
-        console.log("Email in use");
-        return res.send({});
-    }
-
-    const user = User.build({email, password}); 
+    const user = User.build({ email, password });
     await user.save();
 
-    
-    //generate jsobwebtokeb
-    if(!process.env.JWT_KEY){
-        throw new Error('asdfasdf');
-    }
-    const userJwt = jwt.sign({
-        id: user.id, 
-        email: user.email, 
-    }, process.env.JWT_KEY!)
+    // Generate JWT
+    const userJwt = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+      },
+      process.env.JWT_KEY!
+    );
 
-    //store on session object
-    req.session= {
-        jwt: userJwt
-    }
+    // Store it on session object
+    req.session = {
+      jwt: userJwt,
+    };
 
+    res.status(201).send(user);
+  }
+);
 
-    res.status(201).send(user); 
-})
-
-export {router as signupRouter}
+export { router as signupRouter };
